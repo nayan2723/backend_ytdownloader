@@ -22,10 +22,21 @@ app.get('/info', async (req, res) => {
     // Get video info using yt-dlp
     const command = `yt-dlp --dump-json "${url}"`;
     
-    exec(command, (error, stdout, stderr) => {
+    exec(command, { timeout: 30000 }, (error, stdout, stderr) => {
       if (error) {
         console.error('Info error:', error);
-        return res.status(500).json({ error: 'Failed to get video info' });
+        console.error('stderr:', stderr);
+        
+        // Check if yt-dlp is not found
+        if (error.message.includes('yt-dlp') || error.message.includes('not found')) {
+          return res.status(500).json({ 
+            error: 'yt-dlp not available on server. Please contact administrator.' 
+          });
+        }
+        
+        return res.status(500).json({ 
+          error: 'Failed to get video info. Please check the URL and try again.' 
+        });
       }
 
       try {
@@ -84,9 +95,17 @@ app.get('/download', async (req, res) => {
       command = `yt-dlp -f "best[ext=mp4]/best" -o "${outputPath}" "${url}"`;
     }
     
-    exec(command, (error, stdout, stderr) => {
+    exec(command, { timeout: 120000 }, (error, stdout, stderr) => {
       if (error) {
         console.error('Download error:', error);
+        console.error('stderr:', stderr);
+        
+        if (error.message.includes('yt-dlp') || error.message.includes('not found')) {
+          return res.status(500).json({ 
+            error: 'yt-dlp not available on server. Please contact administrator.' 
+          });
+        }
+        
         return res.status(500).json({ error: 'Failed to download video' });
       }
 

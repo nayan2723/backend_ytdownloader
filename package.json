@@ -4,7 +4,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "build": "chmod +x build.sh && ./build.sh"
   },
   "keywords": ["video", "downloader", "yt-dlp", "express"],
   "author": "",
